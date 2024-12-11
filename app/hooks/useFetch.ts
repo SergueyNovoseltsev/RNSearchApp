@@ -1,4 +1,5 @@
-import {useState} from 'react';
+import { useState } from "react";
+import { ApiGetCharProps } from "../models/character";
 
 export function useGetFetch<T>(url: string) {
   const [data, setData] = useState<T | null>(null);
@@ -11,10 +12,10 @@ export function useGetFetch<T>(url: string) {
 
     try {
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
       });
       const json = await response.json();
@@ -27,5 +28,5 @@ export function useGetFetch<T>(url: string) {
     }
   };
 
-  return {callApi, data, error, isLoading};
+  return { callApi, data, error, isLoading };
 }
