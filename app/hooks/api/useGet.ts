@@ -1,15 +1,13 @@
-import {
-  ApiGetCharProps,
-  Character,
-  GetCharacter,
-} from "@/app/models/character";
+import { ApiGetCharProps, Character } from "@/app/models/character";
 import { useGetFetch } from "../useFetch";
+import { Episode } from "@/app/models/episode";
+import { Location } from "@/app/models/location";
 
 export function useGetCharList({
   name,
-  status,
-  type,
   species,
+  type,
+  status,
   gender,
   page,
 }: ApiGetCharProps) {
@@ -18,9 +16,9 @@ export function useGetCharList({
 
     if (name) url += `&name=${name}`;
     if (status) url += `&status=${status}`;
-    if (type) url += `&type=${type}`;
     if (species) url += `&species=${species}`;
     if (gender) url += `&gender=${gender}`;
+    if (type) url += `&type=${type}`;
 
     return url;
   };
@@ -28,6 +26,20 @@ export function useGetCharList({
   return useGetFetch<GetCharacter>(buildUrl());
 }
 
-export function useGetCharacterDetail(id: number) {
-  return useGetFetch<Character>("MY_API_ENDPOINT/" + id);
+export function useGetCharacterDetail(id: string) {
+  return useGetFetch<Character>(
+    "https://rickandmortyapi.com/api/character/" + id
+  );
+}
+
+export function useGetEpisodeList(ids: string | undefined) {
+  return useGetFetch<Episode[]>(
+    "https://rickandmortyapi.com/api/episode/" + ids?.toString()
+  );
+}
+
+export function useGetLocation(id: string | undefined) {
+  return useGetFetch<Location>(
+    "https://rickandmortyapi.com/api/location/" + id
+  );
 }

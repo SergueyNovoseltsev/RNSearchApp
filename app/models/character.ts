@@ -1,9 +1,4 @@
-export interface ApiInfo {
-  count: number;
-  pages: number;
-  next: string;
-  prev: string;
-}
+import { ApiInfo } from "./api";
 
 export interface Character {
   id: number;
@@ -20,12 +15,7 @@ export interface Character {
   created: string;
 }
 
-export interface GetCharacter {
-  info: ApiInfo;
-  results: Character[];
-}
-
-export const speciesArr = [
+export const statusArr = [
   { label: "Alive", value: "alive" },
   { label: "Dead", value: "dead" },
   { label: "Unknown", value: "unknown" },
@@ -38,14 +28,14 @@ export const genderArr = [
   { label: "Unknown", value: "unknown" },
 ];
 
-export type Species = (typeof speciesArr)[number]["value"] | undefined;
+export type Status = (typeof statusArr)[number]["value"] | undefined;
 export type Gender = (typeof genderArr)[number]["value"] | undefined;
 
 export interface ApiGetCharProps {
   name: string | undefined;
-  status: string | undefined;
-  species: Species;
-  gender: Gender;
+  species: string | undefined;
   type: string | undefined;
+  status: Status;
+  gender: Gender;
   page: number;
 }
