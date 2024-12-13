@@ -4,7 +4,6 @@ import {
   View,
   StyleSheet,
   FlatList,
-  Button,
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
@@ -14,6 +13,7 @@ import { useGetCharList } from "./hooks/api/useGet";
 import { Gender, genderArr, Status, statusArr } from "./models/character";
 import Picker from "react-native-ui-lib/src/components/picker";
 import { useRouter } from "expo-router";
+import Button from "react-native-ui-lib/src/components/button";
 
 export default function Index() {
   const [name, setName] = useState<string>();
@@ -63,7 +63,7 @@ export default function Index() {
     <View style={styles.container}>
       <TextField
         style={styles.searchInput}
-        placeholder="Fitler by name..."
+        placeholder="Fitler by name"
         value={name}
         onSubmitEditing={handleSearch}
         onChangeText={setName}
@@ -75,7 +75,6 @@ export default function Index() {
         onSubmitEditing={handleSearch}
         onChangeText={setSpecies}
       />
-
       <TextField
         style={styles.searchInput}
         placeholder="Filter by type"
@@ -84,23 +83,35 @@ export default function Index() {
         onChangeText={setType}
       />
 
-      <Picker
-        placeholder="Filter by status (alive, dead, unknown)"
-        value={status}
-        onChange={(items) => setStatus(items?.toString())}
-        mode={Picker.modes.SINGLE}
-        selectionLimit={3}
-        items={statusArr}
+      <View style={styles.pickerContainer}>
+        <View style={[styles.pickerWrapper, styles.pickerLeft]}>
+          <Picker
+            style={[styles.searchInput]}
+            placeholder="Filter by status"
+            value={status}
+            onChange={(items) => setStatus(items?.toString())}
+            mode={Picker.modes.SINGLE}
+            items={statusArr}
+          />
+        </View>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            style={[styles.searchInput]}
+            placeholder="Filter by gender"
+            value={gender}
+            onChange={(items) => setGender(items?.toString())}
+            mode={Picker.modes.SINGLE}
+            items={genderArr}
+          />
+        </View>
+      </View>
+      <Button
+        color="white"
+        style={styles.searchButton}
+        label="Rechercher"
+        onPress={handleSearch}
+        disabled={isLoading}
       />
-      <Picker
-        placeholder="Filter by gender"
-        value={gender}
-        onChange={(items) => setGender(items?.toString())}
-        mode={Picker.modes.SINGLE}
-        selectionLimit={3}
-        items={genderArr}
-      />
-      <Button title="Rechercher" onPress={handleSearch} disabled={isLoading} />
 
       {isLoading ? (
         <ActivityIndicator size="large" color="#0000ff" />
@@ -123,24 +134,37 @@ export default function Index() {
                       })
                     }
                   >
+                    {/* Character info */}
                     <View style={styles.item}>
-                      <Image
-                        width={50}
-                        height={50}
-                        source={{ uri: item.image }}
-                      />
-                      <Text style={styles.itemName}>{item.name}</Text>
-                      <Text>Status: {item.status}</Text>
-                      <Text>Type: {item.type}</Text>
-                      <Text>Species: {item.species}</Text>
-                      <Text>Gender: {item.gender}</Text>
+                      <View style={styles.itemHeader}>
+                        <Image
+                          width={80}
+                          height={80}
+                          source={{ uri: item.image }}
+                          style={styles.itemImage}
+                        />
+                        <Text style={styles.itemName}>{item.name}</Text>
+                      </View>
+                      <View style={styles.itemDetails}>
+                        <Text style={styles.itemText}>
+                          Status: {item.status}
+                        </Text>
+                        <Text style={styles.itemText}>Type: {item.type}</Text>
+                        <Text style={styles.itemText}>
+                          Species: {item.species}
+                        </Text>
+                        <Text style={styles.itemText}>
+                          Gender: {item.gender}
+                        </Text>
+                      </View>
                     </View>
                   </TouchableOpacity>
                 )}
               />
+              {/* Pagination */}
               <View style={styles.pagination}>
                 <Button
-                  title="Previous"
+                  label="Previous"
                   onPress={prevPage}
                   disabled={page === 1}
                 />
@@ -148,7 +172,7 @@ export default function Index() {
                   Page {page} / {totalPages}
                 </Text>
                 <Button
-                  title="Next"
+                  label="Next"
                   onPress={nextPage}
                   disabled={page === totalPages}
                 />
@@ -164,23 +188,67 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 16,
+    backgroundColor: "#fff",
   },
   searchInput: {
-    height: 40,
-    borderColor: "#ccc",
+    height: 45,
+    borderColor: "#ddd",
     borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 8,
-    borderRadius: 4,
+    borderRadius: 8,
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    backgroundColor: "#f8f8f8",
+    fontSize: 16,
+    width: "100%",
+  },
+  pickerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  pickerWrapper: {
+    flex: 1,
+  },
+  pickerLeft: { marginRight: 5 },
+  searchButton: {
+    marginTop: 10,
+    backgroundColor: "#6200EE",
+    color: "#fff",
+    borderRadius: 8,
+    paddingVertical: 12,
   },
   item: {
-    padding: 10,
+    padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: "#f0f0f0",
+    flexDirection: "column",
+    marginBottom: 10,
+    borderRadius: 8,
+    backgroundColor: "#fafafa",
+  },
+  itemHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  itemImage: {
+    borderRadius: 50,
+    marginRight: 15,
   },
   itemName: {
+    fontSize: 20,
     fontWeight: "bold",
+    color: "#333",
+  },
+  itemDetails: {
+    marginTop: 8,
+    paddingLeft: 10,
+  },
+  itemText: {
+    fontSize: 14,
+    color: "#555",
+    marginBottom: 4,
   },
   noResultsText: {
     fontSize: 18,
@@ -192,6 +260,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 20,
   },
 });

@@ -5,7 +5,7 @@ export interface ApiInfo {
   prev: string;
 }
 
-export interface GetCharacter<T> {
+export interface GetApiFetch<T> {
   info: ApiInfo;
   results: T;
 }

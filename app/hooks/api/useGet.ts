@@ -2,6 +2,7 @@ import { ApiGetCharProps, Character } from "@/app/models/character";
 import { useGetFetch } from "../useFetch";
 import { Episode } from "@/app/models/episode";
 import { Location } from "@/app/models/location";
+import { GetApiFetch } from "@/app/models/api";
 
 export function useGetCharList({
   name,
@@ -23,7 +24,7 @@ export function useGetCharList({
     return url;
   };
 
-  return useGetFetch<GetCharacter>(buildUrl());
+  return useGetFetch<GetApiFetch<Character>>(buildUrl());
 }
 
 export function useGetCharacterDetail(id: string) {

@@ -1,28 +1,27 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ActivityIndicator,
   FlatList,
+  Image,
 } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import {
   useGetCharacterDetail,
   useGetEpisodeList,
   useGetLocation,
 } from "./hooks/api/useGet";
-import { Episode } from "./models/episode";
-import { Character } from "./models/character";
-import { Location } from "./models/location";
 
 export default function Details() {
   const props = useLocalSearchParams();
 
-  const [isLoading, setIsLoading] = useState(true);
-
-  const { callApi: fetchCharacterDetail, data: characterDetailData } =
-    useGetCharacterDetail(props.id.toString());
+  const {
+    callApi: fetchCharacterDetail,
+    data: characterDetailData,
+    isLoading,
+  } = useGetCharacterDetail(props.id.toString());
   const { callApi: fetchEpisodes, data: episodeListData } = useGetEpisodeList(
     characterDetailData?.episode
       ?.map((url: string) => {
@@ -32,27 +31,21 @@ export default function Details() {
       .join(", ")
   );
   const { callApi: fetchLocation, data: locationDetailData } = useGetLocation(
-    characterDetailData?.location?.link?.slice(
-      characterDetailData?.location?.link?.lastIndexOf("/")
+    characterDetailData?.location?.url?.slice(
+      characterDetailData?.location?.url?.lastIndexOf("/")
     )
   );
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        fetchCharacterDetail();
-        fetchEpisodes();
-        fetchLocation();
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+    fetchCharacterDetail();
   }, [props.id]);
+
+  useEffect(() => {
+    if (characterDetailData) {
+      fetchEpisodes();
+      fetchLocation();
+    }
+  }, [characterDetailData]);
 
   if (isLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -63,13 +56,34 @@ export default function Details() {
       {/* Character Details */}
       {characterDetailData && (
         <View style={styles.section}>
-          <Text style={styles.title}>{characterDetailData.name}</Text>
-          <Text>Gender: {characterDetailData.gender}</Text>
-          <Text>Type: {characterDetailData.type}</Text>
-          <Text>Status: {characterDetailData.status}</Text>
+          <View style={styles.characterHeader}>
+            <Image
+              source={{ uri: characterDetailData.image }}
+              style={styles.characterImage}
+            />
+            <View style={styles.characterInfo}>
+              <Text style={styles.title}>{characterDetailData.name}</Text>
+              <Text style={styles.detailText}>
+                Gender: {characterDetailData.gender}
+              </Text>
+              <Text style={styles.detailText}>
+                Type: {characterDetailData.type}
+              </Text>
+              <Text style={styles.detailText}>
+                Status: {characterDetailData.status}
+              </Text>
+              <Text style={styles.detailText}>
+                Species: {characterDetailData.species}
+              </Text>
+              <Text style={styles.detailText}>
+                Origin: {characterDetailData.origin.name}
+              </Text>
+            </View>
+          </View>
         </View>
       )}
 
+      {/* List of episodes in which this character appeared */}
       {episodeListData && episodeListData?.length > 0 && (
         <View style={styles.section}>
           <Text style={styles.subtitle}>
@@ -81,7 +95,7 @@ export default function Details() {
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View style={styles.episodeItem}>
-                <Text>{item.name}</Text>
+                <Text style={styles.episodeTitle}>{item.name}</Text>
                 <Text>Episode: {item.episode}</Text>
               </View>
             )}
@@ -89,11 +103,15 @@ export default function Details() {
         </View>
       )}
 
+      {/* Last known location endpoint */}
       {locationDetailData && (
         <View style={styles.section}>
           <Text style={styles.subtitle}>Last known location:</Text>
-          <Text>Name: {locationDetailData.name}</Text>
-          <Text>Dimension: {locationDetailData.dimension}</Text>
+          <Text style={styles.detailText}>Name: {locationDetailData.name}</Text>
+          <Text style={styles.detailText}>Type: {locationDetailData.type}</Text>
+          <Text style={styles.detailText}>
+            Dimension: {locationDetailData.dimension}
+          </Text>
         </View>
       )}
     </View>
@@ -104,23 +122,70 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: "#f5f5f5",
   },
   section: {
     marginBottom: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  characterHeader: {
+    flexDirection: "row",
+    marginBottom: 15,
+  },
+  characterImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    marginRight: 15,
+  },
+  characterInfo: {
+    flex: 1,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
+    color: "#333",
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    marginTop: 10,
+    marginBottom: 10,
+    color: "#444",
+  },
+  detailText: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 5,
   },
   episodeItem: {
+    width: 180,
+    marginRight: 15,
+    backgroundColor: "#f8f8f8",
     padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderRadius: 10,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  episodeImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  episodeTitle: {
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 5,
   },
 });
-location;
